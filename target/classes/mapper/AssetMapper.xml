@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.hzero.halm.infra.mapper.AssetMapper">
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap id="BaseResultMap" type="org.hzero.halm.domain.entity.Asset">
+        <result column="asset_id" property="assetId" jdbcType="DECIMAL"/>
+        <result column="asset_num" property="assetNum" jdbcType="VARCHAR"/>
+        <result column="asset_desc" property="assetDesc" jdbcType="VARCHAR"/>
+        <result column="special_asset_code" property="specialAssetCode" jdbcType="VARCHAR"/>
+        <result column="brand" property="brand" jdbcType="VARCHAR"/>
+        <result column="model" property="model" jdbcType="VARCHAR"/>
+        <result column="name_rule_code" property="nameRuleCode" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="serial_num" property="serialNum" jdbcType="VARCHAR"/>
+        <result column="tracking_num" property="trackingNum" jdbcType="VARCHAR"/>
+        <result column="maintain_flag" property="maintainFlag" jdbcType="DECIMAL"/>
+        <result column="asset_name" property="assetName" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="asset_icon" property="assetIcon" jdbcType="VARCHAR"/>
+        <result column="attribute_values" property="attributeValues" jdbcType="VARCHAR"/>
+        <result column="linear_name" property="linearName" jdbcType="DECIMAL"/>
+        <result column="linear_start_measure" property="linearStartMeasure" jdbcType="DECIMAL"/>
+        <result column="linear_end_measure" property="linearEndMeasure" jdbcType="DECIMAL"/>
+        <result column="linear_start_desc" property="linearStartDesc" jdbcType="VARCHAR"/>
+        <result column="linear_end_desc" property="linearEndDesc" jdbcType="VARCHAR"/>
+        <result column="car_num" property="carNum" jdbcType="VARCHAR"/>
+        <result column="vin_num" property="vinNum" jdbcType="VARCHAR"/>
+        <result column="engine_num" property="engineNum" jdbcType="VARCHAR"/>
+        <result column="asset_source_detail" property="assetSourceDetail" jdbcType="VARCHAR"/>
+        <result column="currency_code" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="received_date" property="receivedDate" jdbcType="DATE"/>
+        <result column="start_date" property="startDate" jdbcType="DATE"/>
+        <result column="warranty_type_code" property="warrantyTypeCode" jdbcType="VARCHAR"/>
+        <result column="warranty_type_rule" property="warrantyTypeRule" jdbcType="VARCHAR"/>
+        <result column="warranty_start_date" property="warrantyStartDate" jdbcType="DATE"/>
+        <result column="warranty_expire_date" property="warrantyExpireDate" jdbcType="DATE"/>
+        <result column="parent_asset_id" property="parentAssetId" jdbcType="VARCHAR"/>
+        <result column="asset_criticality" property="assetCriticality" jdbcType="VARCHAR"/>
+        <result column="asset_location_id" property="assetLocationId" jdbcType="DECIMAL"/>
+        <result column="asset_location_desc" property="assetLocationDesc" jdbcType="VARCHAR"/>
+        <result column="map_source" property="mapSource" jdbcType="VARCHAR"/>
+        <result column="owning_org_detail" property="owningOrgDetail" jdbcType="VARCHAR"/>
+        <result column="using_org_detail" property="usingOrgDetail" jdbcType="VARCHAR"/>
+        <result column="tenant_id" property="tenantId" jdbcType="DECIMAL"/>
+        <result column="object_version_number" property="objectVersionNumber" jdbcType="DECIMAL"/>
+        <result column="creation_date" property="creationDate" jdbcType="DATE"/>
+        <result column="created_by" property="createdBy" jdbcType="DECIMAL"/>
+        <result column="last_updated_by" property="lastUpdatedBy" jdbcType="DECIMAL"/>
+        <result column="last_update_date" property="lastUpdateDate" jdbcType="DATE"/>
+        <result column="asset_source_id" property="assetSourceId" jdbcType="DECIMAL"/>
+        <result column="aos_receiving_report_id" property="aosReceivingReportId" jdbcType="DECIMAL"/>
+        <result column="source_contract_id" property="sourceContractId" jdbcType="DECIMAL"/>
+        <result column="source_project_id" property="sourceProjectId" jdbcType="DECIMAL"/>
+        <result column="using_org_id" property="usingOrgId" jdbcType="DECIMAL"/>
+        <result column="owning_org_id" property="owningOrgId" jdbcType="DECIMAL"/>
+        <result column="user_person_id" property="userPersonId" jdbcType="DECIMAL"/>
+        <result column="owning_person_id" property="owningPersonId" jdbcType="DECIMAL"/>
+        <result column="asset_source_type_code" property="assetSourceTypeCode" jdbcType="VARCHAR"/>
+        <result column="asset_specialty_id" property="assetSpecialtyId" jdbcType="DECIMAL"/>
+        <result column="asset_class_id" property="assetClassId" jdbcType="DECIMAL"/>
+        <result column="assets_set_id" property="assetsSetId" jdbcType="DECIMAL"/>
+        <result column="original_cost" property="originalCost" jdbcType="DECIMAL"/>
+        <result column="supplier_org_id" property="supplierOrgId" jdbcType="DECIMAL"/>
+        <result column="cost_center_id" property="costCenterId" jdbcType="DECIMAL"/>
+        <result column="asset_status_id" property="assetStatusId" jdbcType="DECIMAL"/>
+        <result column="product_category_code" property="productCategoryCode" jdbcType="VARCHAR"/>
+        <result column="asset_status_code" property="assetStatusCode" jdbcType="VARCHAR"/>
+        <result column="cost_center_code" property="costCenterCode" jdbcType="VARCHAR"/>
+        <result column="deal_flag" property="dealFlag" jdbcType="VARCHAR"/>
+    </resultMap>
+    <select id="querySyncAssets" resultMap="BaseResultMap">
+        SELECT aa.serial_num,
+           apc.product_category_code,
+           hlv.value cost_center_code,
+           aas.asset_status_code,
+           aa.description,
+           aa.asset_source_type_code,
+           aa.asset_num
+      FROM aafm_asset aa
+      JOIN aafm_product_categories apc
+        ON aa.asset_class_id = apc.product_category_id
+      JOIN aafm_asset_status aas
+        ON aas.asset_status_id = aa.asset_status_id
+      LEFT JOIN hzero_platform.hpfm_lov_value hlv
+        ON hlv.lov_value_id = aa.cost_center_id
+     WHERE aa.last_update_date > trunc(SYSDATE - 7)
+     and aa.deal_flag = 0
+    </select>
+
+    <select id="selectExportRecords" resultMap="BaseResultMap">
+        select * from aafm_asset aa
+    </select>
+</mapper>
